@@ -2,12 +2,16 @@
 use strict;
 use v5.16;
 
-my $start_run = time();
-my $number = shift(@ARGV);
-unless ($number =~ /^[+-]?\d+$/){
-    die "Wrong input $_";
+sub validateInput {
+    my $number = shift;
+    unless ($number =~ /\d/) {
+        return 0;
+    }
+    unless ($number >= 2 && $number <= 1000000) {
+        return 0;
+    }
+    return 1;
 }
-
 sub isPrime {
     my $number = shift;
     my $d = 2;
@@ -23,17 +27,23 @@ sub isPrime {
         }
     }
 }
-
-my $auxNumber = 1;
-my $cant = 0;
-while ($auxNumber < $number) {
-   if (isPrime($auxNumber)) {
-       $cant++;
-   }
-    $auxNumber +=2;
+print "Enter a number: ";
+my $number = <STDIN>;
+my $startTime = time();
+if (validateInput($number)) {
+    my $auxNumber = 1;
+    my $cant = 0;
+    while ($auxNumber < $number) {
+        if (isPrime($auxNumber)) {
+            print "$auxNumber ";
+            $cant++;
+        }
+        $auxNumber += 2;
+    }
+    my $endRun = time();
+    my $runTime = $endRun - $startTime;
+    say "\nJob took $runTime seconds";
+    say "Count $cant";
+} else {
+    die ('Wrong input');
 }
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job took $run_time seconds\n";
-say ("Cant $cant");
-#say prime($number);
