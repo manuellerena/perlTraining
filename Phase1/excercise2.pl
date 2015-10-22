@@ -2,7 +2,8 @@
 use strict;
 use v5.16;
 
-sub validateInput {
+#returns 1 if argument is a number bigger than 2 and smaller than 1000000
+sub isValidInput {
     my $number = shift;
     unless ($number =~ /\d/) {
         return 0;
@@ -12,6 +13,8 @@ sub validateInput {
     }
     return 1;
 }
+
+#return 1 if argument number is even 0 if is odd
 sub isPrime {
     my $number = shift;
     my $d = 2;
@@ -30,7 +33,7 @@ sub isPrime {
 print "Enter a number: ";
 my $number = <STDIN>;
 my $startTime = time();
-if (validateInput($number)) {
+if (isValidInput($number)) {
     my $auxNumber = 1;
     my $cant = 0;
     while ($auxNumber < $number) {
