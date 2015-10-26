@@ -3,7 +3,10 @@ use strict;
 use v5.16;
 use Paths::Graph;
 
-my $fileName = 'paths';
+my $fileName = shift @ARGV;
+if (!-e $fileName) {
+    die("Invalid file: $fileName");
+}
 open INFILE, "$fileName";
 my @data = <INFILE> ;
 close INFILE;
