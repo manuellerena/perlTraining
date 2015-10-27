@@ -24,4 +24,4 @@ my $val;
 ($val = $sentence) =~ s/(@{[join "|", keys %replacements]})/$replacements{$1}/g;
 say $val;
 
-exit();
+exit;
