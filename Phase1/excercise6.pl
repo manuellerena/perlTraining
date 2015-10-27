@@ -154,14 +154,16 @@ sub draw {
 
     my $img = GD::Simple->new(800, 600);
     my $white = $img->colorAllocate(255,255,255);
-    my $blue = $img->colorAllocate(0,0,255);
-    $img->transparent($white);
-   # $img->bgcolor($self->colour());
-    $img->arc(50,50,100,100,0,360,$blue);
+    my $blue = $img->colorAllocate(255,0,255);
+    my $red = $img->colorAllocate(255,0,0);
+    #$img->transparent($white);
+    $img->bgcolor($blue);
+    $img->filledArc(400,300,190,190,0,360, $red);
+    #$img->fill(150,150,$red);
     open my $out, '>', 'Circle.png' or die;
     binmode $out;
     print $out $img->png;
-    say "Dray Rectangle";
+    say "Dray Circle";
 }
 sub validateCoordinate{
     return 1;
