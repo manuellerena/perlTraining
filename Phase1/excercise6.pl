@@ -276,12 +276,15 @@ sub run{
     $figure->draw();
 
 
-    open my $out, '>', "figures/$figure_type-$color.png" or die;
+    open my $out, '>', "figures/$figure_type-$color-$first_coordinate1[0]_
+        $first_coordinate1[1]-$second_coordinate1[0]_$second_coordinate1[1]
+        .png" or die;
     binmode $out;
     print $out $figure->{img}->png;
     my $persistence = Figure::Persistence->new();
     $persistence->save_figure($figure);
-    say "Area:  $figure->calculate_area()";
+    my $area = $figure->calculate_area();
+    say "Area:  $area";
     exit;
 }
 1;
