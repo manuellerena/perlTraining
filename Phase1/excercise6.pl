@@ -239,8 +239,8 @@ sub new {
 sub figure_factory{
 
     my $self = shift;
-    my $figureType = shift;
-    given ($figureType) {
+    my $figure_type = shift;
+    given ($figure_type) {
         when ("rectangle") {
             return Figure::Rectangle->new();
         }
@@ -254,7 +254,7 @@ sub figure_factory{
             return Figure::Triangle->new();
         }
         default{
-            exit("Unknow figure type $figureType");
+            exit("Unknow figure type $figure_type");
         }
     }
 }
@@ -280,7 +280,8 @@ sub run{
     binmode $out;
     print $out $figure->{img}->png;
     my $persistence = Figure::Persistence->new();
-    $persistence->saveFigure($figure);
+    $persistence->save_figure($figure);
+    $persistence->list_figures_by_type('rectangle');
     exit $figure->calculate_area();
 }
 1;
@@ -305,17 +306,15 @@ sub new {
         `coordinates` VARCHAR( 255 ) NOT NULL ,
         INDEX (type),
         PRIMARY KEY ( `id` )) ";
-    my $statment = $self->{dbh}->do($createString)
-        or die "Could  not prepare sql statement";
+     $self->{dbh}->do($createString);
     return $self;
 }
 
-sub saveFigure {
+sub save_figure {
     my $self = shift;
     my $figure = shift;
-    my $insertString = "INSERT INTO figures VALUES (null, ?, ?, ?)";
-    my $sth = $self->{dbh}->prepare($insertString)
-        or die "Couldn't prepare statement: " . $self->{dbh}->errstr;
+    my $dsn = "DBI:mysql:database=perl_training;host=localhost;port=3306";
+    my $dbh = DBI->connect($dsn, 'root', 'root') or die $DBI::errstr;
 
     my $coordinates = $figure->get_coordinates();
     my $firstX = @{$coordinates}[0]->x;
@@ -323,25 +322,27 @@ sub saveFigure {
 
     my $secondX = @{$coordinates}[1]->x;
     my $secondY = @{$coordinates}[1]->y;
-    $sth->excecute($figure->type(), $figure->color(), "$firstX,$firstY
-        $secondX,$secondY");
-        #or die "Couldn't execute statement: " . $self->{dbh}->errstr;
+    my $coordiString = "$firstX,$firstY $secondX,$secondY";
+    my $type = $figure->type();
+    my $color = $figure->color();
+    my $insertString = "INSERT INTO figures VALUES (null, '$type', '$color',
+        '$coordiString')";
+    $dbh->do($insertString);
 }
 
-sub listFiguresByType {
+sub list_figures_by_type {
     my $self = shift;
     my $type = shift;
+    my $dsn = "DBI:mysql:database=perl_training;host=localhost;port=3306";
+    my $dbh = DBI->connect($dsn, 'root', 'root') or die $DBI::errstr;
+    my $query_string = "SELECT * FROM figures WHERE type = '$type'";
+    my $results = $dbh->selectall_hashref($query_string, 'id');
+    foreach my $id (keys %$results) {
+        say "$results->{$id}->{type} $results->{$id}->{color} $results->{$id}->{coordinates}";
+    }
 
-    my $queryString = "SELECT * FROM figures WHERE type = ?";
-    my $sth = $self->{dbh}->prepare($queryString)
-        or die "Couldn't prepare statement: " . $self->{dbh}->errstr;
-
-    $sth->excecute($type)
-        or die "Couldn't execute statement: " . $self->{dbh}->errstr;
-
-    return $sth;
 }
 1;
 
 
-my $command = Figure::Command->run('triangle', 'blue', '100,300', '150,300');
+my $command = Figure::Command->run('rectangle', 'blue', '100,300', '150,300');
