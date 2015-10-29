@@ -281,8 +281,8 @@ sub run{
     print $out $figure->{img}->png;
     my $persistence = Figure::Persistence->new();
     $persistence->save_figure($figure);
-    $persistence->list_figures_by_type('rectangle');
-    exit $figure->calculate_area();
+    say "Area:  $figure->calculate_area()";
+    exit;
 }
 1;
 ###################################################################
@@ -307,6 +307,7 @@ sub new {
         INDEX (type),
         PRIMARY KEY ( `id` )) ";
      $self->{dbh}->do($createString);
+    $self->{dbh}->disconnect;
     return $self;
 }
 
@@ -328,6 +329,7 @@ sub save_figure {
     my $insertString = "INSERT INTO figures VALUES (null, '$type', '$color',
         '$coordiString')";
     $dbh->do($insertString);
+    $dbh->disconnect;
 }
 
 sub list_figures_by_type {
@@ -340,9 +342,19 @@ sub list_figures_by_type {
     foreach my $id (keys %$results) {
         say "$results->{$id}->{type} $results->{$id}->{color} $results->{$id}->{coordinates}";
     }
-
+    $dbh->disconnect;
 }
 1;
 
-
-my $command = Figure::Command->run('rectangle', 'blue', '100,300', '150,300');
+say ("1) List type (tringle, circle, triangle, rectangle).\n ej. list circle");
+say ("2) Create type (tringle, circle, triangle, rectangle) color coordinateOne
+    coordinateTwo. \n ej. create circle red 100,100 200,200");
+my @command = split(' ', <STDIN>);
+if (@command[0] eq 'list') {
+    my $persistence = Figure::Persistence->new();
+    $persistence->list_figures_by_type(@command[1]);
+} else {
+    my ($command, $type, $color, $coordinateOne, $coordinateTwo) = @command;
+    #say "$type $color $coordinateOne $coordinateTwo";
+    Figure::Command->run($type, $color, $coordinateOne, $coordinateTwo);
+}
